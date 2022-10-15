@@ -45,7 +45,7 @@ function compose_rtsp_block(stype)
   
   stream = "/unicast";
   if ((fdata.get('RTSP_HI_RES_ENABLED') == "true") && (fdata.get('RTSP_LOW_RES_ENABLED') == "true")) {
-	if (stype == "RTSP_HI") {  stream = "/video1_unicast"  } else { stream ="/video2_unicast" }
+	if (stype == "RTSP_HI_RES") {  stream = "/video1_unicast"  } else { stream ="/video2_unicast" }
   }
 
   var link = "rtsp://" + auth + document.body.getAttribute("ip") + ":" + fdata.get('RTSP_PORT') + stream;  
@@ -54,6 +54,13 @@ function compose_rtsp_block(stype)
   var url_block = document.createElement('DIV');
   url_block.innerHTML = 'Stream ' + stype + ' URL: ' + '<a href="' + link +  '">' + link +  '</a>' ;
   vb.appendChild(url_block);
+}
+
+function enable_submit()
+{
+	alert("no guarantees at all on this one. Change values at your own risk");
+       document.getElementById("update").disabled = false;
+
 }
 
 window.onload = function()

@@ -13,25 +13,24 @@ echo -e "Content-type: text/html\n\n"
 echo ""
 
 
-reboot_camera()  {
-    echo "rebooting camera (refreshing screen in 90 seconds)"
-    echo '<script type="text/javascript">setTimeout(function(){ document.location.reload (); },90 * 1000)</script>'
-    reboot 
-    exit
-}
+die_no_config() 
+{
+if [ -f ${hack_ini} ]
+then
+    if [ -s ${hack_ini} ]
+    then
+        echo "$hack_ini exists and not empty"
+    else
+ echo "$hack_ini exists but empty"
+ echo "if you reboot then the hack will fail "
+ exit
+    fi
+else
+ echo "$hack_ini file does  not exist"
+ echo "if you reboot then the hack will fail. Please insure you have a wz_hack.conf file.."
+ exit 
+fi
 
-shft() {
-    # SE loop did not work -- thanks ash!
-   suff=8 
-   while [ "$suff" -gt 0 ] ;
-    do
-        if [[ -f "$1.$suff" ]] ; then
-            nxt=$((suff + 1))
-            mv -f "$1.$suff" "$1.$nxt"
-        fi
-   suff=$((suff-1))
-   done 
-   mv -f "$1" "$1.1"
 }
 
 
@@ -39,29 +38,6 @@ function revert_config
 {
   mv "$hack_ini" "$hack_ini.old"
   mv "$hack_ini.$1" "$hack_ini"
-}
-
-
-function revert_menu
-{
-   echo '<h2 id="revert" >Revert Menu</a>'
-   echo '<div class="old_configs">'
-   echo 'Prior Versions : ' 
-   xuff=0
-   while [ "$xuff" -lt 9 ] ; 
-   do 
-	xuff=$((xuff + 1))  
-        if [[ -f "$1.$xuff" ]] ; then
-	    filedate=$(date -r "$1.$xuff" )	
-            class=""
-	    if [ "$1.$xuff" = "$2" ];
-	    then
-               class="current_revert"
-            fi
-	    echo '<div class="revert_DIV '$class'"><div><a href="?action=show_revert&version='"$xuff"'">'"$xuff </a></div><div> $filedate</div></div>"
-        fi
-    done
-    echo '</div>'
 }
 
 
@@ -103,6 +79,7 @@ if [[ $REQUEST_METHOD = 'POST' ]]; then
   do
       K=$(echo $PAIR | cut -f1 -d=)
       VA=$(echo $PAIR | cut -f2 -d=)
+      VA=$(urldecode $VA)
       VB=\"${VA//%3A/:}\"
       #echo "<div>$K=$VB</div>"
       eval POST_$K=\"$VB\"
@@ -189,24 +166,10 @@ function ini_to_html_tf
         printf '</div>'
 }
 
-#function to handle camera feed
-function html_cam_feed
-{
-	printf '<img id="current_feed" src="/cgi-bin/jpeg.cgi?channel=1" class="feed" />'
-}
-
-
-
-function handle_css
-{
-echo -ne "<style type=\"text/css\">"
-cat config.css
-echo -ne '</style>';
-}
 
 
 echo -ne "<html><head><title>$title</title>"
-handle_css wz_mini_web.css
+handle_css config.css
 
 echo '<script type="text/javascript" src="/config.js" ></script>'
 echo -ne "</head>"
